@@ -95,6 +95,17 @@ Grid.defaults = {
     rowSelect: false,
 
     /**
+     * Change the position of selection Columm, left or right. Default value is `left`.
+     *
+     * @property selectColumnPosition
+     * @type string
+     * @default left
+     * @for defaults
+     * @since 1.3.2
+     **/
+    selectColumnPosition: 'left',
+
+    /**
      * Defines whether the row selection is saved internally on filtering, paging and sorting
      * (even if the selected rows are not visible).
      *

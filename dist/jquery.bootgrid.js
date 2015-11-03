@@ -1,5 +1,5 @@
 /*! 
- * jQuery Bootgrid v1.3.1 - 09/11/2015
+ * jQuery Bootgrid v1.3.1 - 11/03/2015
  * Copyright (c) 2014-2015 Rafael Staib (http://www.jquery-bootgrid.com)
  * Licensed under MIT http://www.opensource.org/licenses/MIT
  */
@@ -594,22 +594,9 @@
             $.each(rows, function (index, row)
             {
                 var cells = "",
+                    scell = "",
                     rowAttr = " data-row-id=\"" + ((that.identifier == null) ? index : row[that.identifier]) + "\"",
                     rowCss = "";
-
-                if (that.selection)
-                {
-                    var selected = ($.inArray(row[that.identifier], that.selectedRows) !== -1),
-                        selectBox = tpl.select.resolve(getParams.call(that,
-                            { type: "checkbox", value: row[that.identifier], checked: selected }));
-                    cells += tpl.cell.resolve(getParams.call(that, { content: selectBox, css: css.selectCell }));
-                    allRowsSelected = (allRowsSelected && selected);
-                    if (selected)
-                    {
-                        rowCss += css.selected;
-                        rowAttr += " aria-selected=\"true\"";
-                    }
-                }
 
                 var status = row.status != null && that.options.statusMapping[row.status];
                 if (status)
@@ -632,6 +619,28 @@
                             style: (column.width == null) ? "" : "width:" + column.width + ";" }));
                     }
                 });
+
+                if (that.selection)
+                {
+                    var selected = ($.inArray(row[that.identifier], that.selectedRows) !== -1),
+                        selectBox = tpl.select.resolve(getParams.call(that,
+                            { type: "checkbox", value: row[that.identifier], checked: selected }));
+                    scell += tpl.cell.resolve(getParams.call(that, { content: selectBox, css: css.selectCell }));
+                    allRowsSelected = (allRowsSelected && selected);
+                    if (selected)
+                    {
+                        rowCss += css.selected;
+                        rowAttr += " aria-selected=\"true\"";
+                    }
+                }
+
+                if(that.options.selectColumnPosition === 'left' || that.options.selectColumnPosition === '' ||
+                    that.options.selectColumnPosition === null || that.options.selectColumnPosition === undefined)
+                {
+                    cells = scell + cells;
+                }else{
+                    cells += scell;
+                }
 
                 if (rowCss.length > 0)
                 {
@@ -765,16 +774,9 @@
             headerRow = this.element.find("thead > tr"),
             css = this.options.css,
             tpl = this.options.templates,
+            scell = "",
             html = "",
             sorting = this.options.sorting;
-
-        if (this.selection)
-        {
-            var selectBox = (this.options.multiSelect) ?
-                tpl.select.resolve(getParams.call(that, { type: "checkbox", value: "all" })) : "";
-            html += tpl.rawHeaderCell.resolve(getParams.call(that, { content: selectBox,
-                css: css.selectCell }));
-        }
 
         $.each(this.columns, function (index, column)
         {
@@ -793,6 +795,22 @@
                     style: (column.width == null) ? "" : "width:" + column.width + ";" }));
             }
         });
+
+        if (this.selection)
+        {
+            var selectBox = (this.options.multiSelect) ?
+                tpl.select.resolve(getParams.call(that, { type: "checkbox", value: "all" })) : "";
+            scell += tpl.rawHeaderCell.resolve(getParams.call(that, { content: selectBox,
+                css: css.selectCell }));
+
+            if(that.options.selectColumnPosition === 'left' || that.options.selectColumnPosition === '' ||
+                that.options.selectColumnPosition === null || that.options.selectColumnPosition === undefined)
+            {
+                html = scell + html;
+            }else{
+                html += scell;
+            }
+        }
 
         headerRow.html(html);
 
@@ -1052,6 +1070,17 @@
          * @since 1.1.0
          **/
         rowSelect: false,
+
+        /**
+         * Change the position of selection Columm, left or right. Default value is `left`.
+         *
+         * @property selectColumnPosition
+         * @type string
+         * @default left
+         * @for defaults
+         * @since 1.3.2
+         **/
+        selectColumnPosition: 'left',
 
         /**
          * Defines whether the row selection is saved internally on filtering, paging and sorting

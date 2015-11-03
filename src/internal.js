@@ -584,22 +584,9 @@ function renderRows(rows)
         $.each(rows, function (index, row)
         {
             var cells = "",
+                scell = "",
                 rowAttr = " data-row-id=\"" + ((that.identifier == null) ? index : row[that.identifier]) + "\"",
                 rowCss = "";
-
-            if (that.selection)
-            {
-                var selected = ($.inArray(row[that.identifier], that.selectedRows) !== -1),
-                    selectBox = tpl.select.resolve(getParams.call(that,
-                        { type: "checkbox", value: row[that.identifier], checked: selected }));
-                cells += tpl.cell.resolve(getParams.call(that, { content: selectBox, css: css.selectCell }));
-                allRowsSelected = (allRowsSelected && selected);
-                if (selected)
-                {
-                    rowCss += css.selected;
-                    rowAttr += " aria-selected=\"true\"";
-                }
-            }
 
             var status = row.status != null && that.options.statusMapping[row.status];
             if (status)
@@ -622,6 +609,28 @@ function renderRows(rows)
                         style: (column.width == null) ? "" : "width:" + column.width + ";" }));
                 }
             });
+
+            if (that.selection)
+            {
+                var selected = ($.inArray(row[that.identifier], that.selectedRows) !== -1),
+                    selectBox = tpl.select.resolve(getParams.call(that,
+                        { type: "checkbox", value: row[that.identifier], checked: selected }));
+                scell += tpl.cell.resolve(getParams.call(that, { content: selectBox, css: css.selectCell }));
+                allRowsSelected = (allRowsSelected && selected);
+                if (selected)
+                {
+                    rowCss += css.selected;
+                    rowAttr += " aria-selected=\"true\"";
+                }
+            }
+
+            if(that.options.selectColumnPosition === 'left' || that.options.selectColumnPosition === '' ||
+                that.options.selectColumnPosition === null || that.options.selectColumnPosition === undefined)
+            {
+                cells = scell + cells;
+            }else{
+                cells += scell;
+            }
 
             if (rowCss.length > 0)
             {
@@ -755,16 +764,9 @@ function renderTableHeader()
         headerRow = this.element.find("thead > tr"),
         css = this.options.css,
         tpl = this.options.templates,
+        scell = "",
         html = "",
         sorting = this.options.sorting;
-
-    if (this.selection)
-    {
-        var selectBox = (this.options.multiSelect) ?
-            tpl.select.resolve(getParams.call(that, { type: "checkbox", value: "all" })) : "";
-        html += tpl.rawHeaderCell.resolve(getParams.call(that, { content: selectBox,
-            css: css.selectCell }));
-    }
 
     $.each(this.columns, function (index, column)
     {
@@ -783,6 +785,22 @@ function renderTableHeader()
                 style: (column.width == null) ? "" : "width:" + column.width + ";" }));
         }
     });
+
+    if (this.selection)
+    {
+        var selectBox = (this.options.multiSelect) ?
+            tpl.select.resolve(getParams.call(that, { type: "checkbox", value: "all" })) : "";
+        scell += tpl.rawHeaderCell.resolve(getParams.call(that, { content: selectBox,
+            css: css.selectCell }));
+
+        if(that.options.selectColumnPosition === 'left' || that.options.selectColumnPosition === '' ||
+            that.options.selectColumnPosition === null || that.options.selectColumnPosition === undefined)
+        {
+            html = scell + html;
+        }else{
+            html += scell;
+        }
+    }
 
     headerRow.html(html);
 
